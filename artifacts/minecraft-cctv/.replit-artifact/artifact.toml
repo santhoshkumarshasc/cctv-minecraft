@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "Minecraft CCTV"
+description = "A live security-camera wall for authorized Minecraft bot operators, with private bot controls, per-bot first-person feeds, health and position telemetry, reconnect handling, and setup guidance for self-hosted servers."
+version = "1.0.0"
+id = "artifacts/minecraft-cctv"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20915
+
+[services.development]
+run = "pnpm --filter @workspace/minecraft-cctv run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/minecraft-cctv", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/minecraft-cctv/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20915"
+BASE_PATH = "/"

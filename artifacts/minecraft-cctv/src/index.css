@@ -1,0 +1,102 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@plugin "@tailwindcss/typography";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --font-sans: var(--app-font-sans);
+  --font-mono: var(--app-font-mono);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+  --background: 150 14% 95%;
+  --foreground: 153 30% 17%;
+  --card: 0 0% 100%;
+  --card-foreground: 153 30% 17%;
+  --border: 150 13% 86%;
+  --input: 150 13% 86%;
+  --primary: 151 35% 27%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 148 20% 91%;
+  --secondary-foreground: 151 35% 27%;
+  --muted: 150 16% 91%;
+  --muted-foreground: 153 11% 46%;
+  --accent: 43 75% 62%;
+  --accent-foreground: 153 30% 17%;
+  --destructive: 3 63% 52%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 151 35% 27%;
+  --app-font-sans: 'Manrope', sans-serif;
+  --app-font-mono: 'DM Mono', monospace;
+  --radius: 1rem;
+  --button-outline: rgba(24, 54, 39, .12);
+  --badge-outline: rgba(24, 54, 39, .08);
+  --elevate-1: rgba(24, 54, 39, .035);
+  --elevate-2: rgba(24, 54, 39, .075);
+}
+
+.dark {
+  --background: 153 24% 10%;
+  --foreground: 145 20% 91%;
+  --card: 153 21% 14%;
+  --card-foreground: 145 20% 91%;
+  --border: 153 15% 25%;
+  --input: 153 15% 25%;
+  --primary: 143 35% 59%;
+  --primary-foreground: 153 25% 10%;
+  --secondary: 153 18% 21%;
+  --secondary-foreground: 145 20% 91%;
+  --muted: 153 18% 20%;
+  --muted-foreground: 147 10% 65%;
+  --accent: 43 70% 60%;
+  --accent-foreground: 153 30% 13%;
+  --destructive: 3 62% 56%;
+  --destructive-foreground: 0 0% 100%;
+  --ring: 143 35% 59%;
+}
+
+@layer base {
+  * { @apply border-border; }
+  body { @apply bg-background text-foreground antialiased; margin: 0; }
+  button, input, select { font: inherit; }
+  button { cursor: pointer; }
+}
+
+.mono { font-family: var(--app-font-mono); }
+.scanlines::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  opacity: .18; background: repeating-linear-gradient(to bottom, transparent 0px, transparent 3px, rgba(10, 25, 17, .34) 4px);
+}
+.hero-island {
+  background:
+    radial-gradient(ellipse at 53% 45%, rgba(239, 215, 151, .65), transparent 38%),
+    linear-gradient(150deg, #dbe9dc 0%, #c1d8c8 45%, #9ebdac 100%);
+}
+.fade-up { animation: fade-up .65s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes fade-up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.camera-modal { animation: modal-in .25s ease-out both; }
+@keyframes modal-in { from { opacity: 0; transform: scale(.985); } to { opacity: 1; transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; } }

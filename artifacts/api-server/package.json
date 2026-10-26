@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "export NODE_ENV=development && pnpm run build && pnpm run start",
     "build": "node ./build.mjs",
-    "start": "node --enable-source-maps ./dist/index.mjs",
+    "start": "node --env-file-if-exists=../../.env --enable-source-maps ./dist/index.mjs",
+    "dev:local": "export NODE_ENV=development && pnpm run build && PORT=${PORT:-5000} pnpm run start",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
@@ -16,13 +17,21 @@
     "cors": "^2.8.6",
     "drizzle-orm": "catalog:",
     "express": "^5.3.0",
+    "express-rate-limit": "^8.7.1",
+    "http-proxy": "^1.18.1",
+    "minecraft-data": "3.117.0",
+    "mineflayer": "4.39.0",
+    "mineflayer-pathfinder": "^2.4.5",
     "pino": "^9.14.0",
-    "pino-http": "^10.5.0"
+    "pino-http": "^10.5.0",
+    "prismarine-viewer": "1.33.0",
+    "socket.io": "^4.8.4"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/http-proxy": "^1.17.17",
     "@types/node": "catalog:",
     "esbuild": "0.28.2",
     "esbuild-plugin-pino": "^2.3.3",

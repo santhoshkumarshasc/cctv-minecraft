@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: cameras
+    description: Public camera wall
+  - name: admin
+    description: Protected camera administration
 paths:
   /healthz:
     get:
@@ -24,7 +28,221 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /bots:
+    get:
+      operationId: listCameras
+      tags: [cameras]
+      summary: List public camera feeds
+      responses:
+        "200":
+          description: Camera list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CameraBot"
+  /bots/summary:
+    get:
+      operationId: getCameraSummary
+      tags: [cameras]
+      summary: Get camera wall summary
+      responses:
+        "200":
+          description: Camera summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CameraSummary"
+  /admin/session:
+    get:
+      operationId: getAdminSession
+      tags: [admin]
+      summary: Check the current admin session
+      responses:
+        "200":
+          description: Admin session status
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Not signed in
+    post:
+      operationId: createAdminSession
+      tags: [admin]
+      summary: Sign in to the admin portal
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AdminLoginInput"
+      responses:
+        "200":
+          description: Admin session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminSession"
+        "401":
+          description: Incorrect password
+    delete:
+      operationId: deleteAdminSession
+      tags: [admin]
+      summary: Sign out of the admin portal
+      responses:
+        "204":
+          description: Session cleared
+  /admin/config:
+    get:
+      operationId: getAdminConfig
+      tags: [admin]
+      summary: Get version and camera capacity settings
+      responses:
+        "200":
+          description: Admin configuration
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminConfig"
+  /admin/bots:
+    get:
+      operationId: listAdminBots
+      tags: [admin]
+      summary: List configured bots
+      responses:
+        "200":
+          description: Configured bots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CameraBot"
+        "401":
+          description: Not signed in
+    post:
+      operationId: createBot
+      tags: [admin]
+      summary: Configure a new camera bot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CameraBotInput"
+      responses:
+        "201":
+          description: Bot configured
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CameraBot"
+        "400":
+          description: Invalid input or server permission not confirmed
+        "401":
+          description: Not signed in
+  /admin/bots/{botId}/start:
+    post:
+      operationId: startBot
+      tags: [admin]
+      summary: Start a configured bot
+      parameters:
+        - $ref: "#/components/parameters/BotId"
+      responses:
+        "200":
+          description: Bot start requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotActionResult"
+        "401":
+          description: Not signed in
+        "404":
+          description: Bot not found
+  /admin/bots/{botId}/stop:
+    post:
+      operationId: stopBot
+      tags: [admin]
+      summary: Stop a configured bot
+      parameters:
+        - $ref: "#/components/parameters/BotId"
+      responses:
+        "200":
+          description: Bot stopped
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotActionResult"
+        "401":
+          description: Not signed in
+        "404":
+          description: Bot not found
+  /admin/bots/{botId}/reconnect:
+    post:
+      operationId: reconnectBot
+      tags: [admin]
+      summary: Reconnect a configured bot
+      parameters:
+        - $ref: "#/components/parameters/BotId"
+      responses:
+        "200":
+          description: Reconnect requested
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotActionResult"
+        "401":
+          description: Not signed in
+        "404":
+          description: Bot not found
+  /admin/bots/{botId}:
+    delete:
+      operationId: removeBot
+      tags: [admin]
+      summary: Remove a configured bot
+      parameters:
+        - $ref: "#/components/parameters/BotId"
+      responses:
+        "204":
+          description: Bot removed
+        "401":
+          description: Not signed in
+        "404":
+          description: Bot not found
+  /admin/bots/{botId}/chat:
+    post:
+      operationId: sendBotChat
+      tags: [admin]
+      summary: Send a moderated chat message from a bot
+      parameters:
+        - $ref: "#/components/parameters/BotId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CameraChatInput"
+      responses:
+        "200":
+          description: Chat message sent
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BotActionResult"
+        "401":
+          description: Not signed in
+        "404":
+          description: Bot not found
 components:
+  parameters:
+    BotId:
+      name: botId
+      in: path
+      required: true
+      schema:
+        type: string
   schemas:
     HealthStatus:
       type: object
@@ -33,4 +251,91 @@ components:
           type: string
       required:
         - status
+    CameraBot:
+      type: object
+      required: [id, cameraNumber, name, server, version, authMode, status, uptimeSeconds, viewerUrl]
+      properties:
+        id: { type: string }
+        cameraNumber: { type: integer }
+        name: { type: string }
+        server: { type: string }
+        version: { type: string }
+        authMode: { type: string, enum: [offline, microsoft] }
+        status: { type: string, enum: [offline, connecting, online, reconnecting, error] }
+        uptimeSeconds: { type: integer }
+        health: { type: ["number", "null"] }
+        food: { type: ["number", "null"] }
+        x: { type: ["number", "null"] }
+        y: { type: ["number", "null"] }
+        z: { type: ["number", "null"] }
+        pingMs: { type: ["number", "null"] }
+        lastError: { type: ["string", "null"] }
+        viewerUrl: { type: string }
+        antiAfk: { type: boolean }
+        autoReconnect: { type: boolean }
+        patrolEnabled: { type: boolean }
+        chatEnabled: { type: boolean }
+    CameraSummary:
+      type: object
+      required: [total, online, offline, reconnecting, latestUpdate]
+      properties:
+        total: { type: integer }
+        online: { type: integer }
+        offline: { type: integer }
+        reconnecting: { type: integer }
+        latestUpdate: { type: string, format: date-time }
+    AdminSession:
+      type: object
+      required: [authenticated]
+      properties:
+        authenticated: { type: boolean }
+    AdminLoginInput:
+      type: object
+      required: [password]
+      properties:
+        password: { type: string, minLength: 1 }
+    AdminConfig:
+      type: object
+      required: [defaultVersion, supportedVersions, maxBots]
+      properties:
+        defaultVersion: { type: string }
+        supportedVersions:
+          type: array
+          items: { type: string }
+        maxBots: { type: integer }
+    CameraBotInput:
+      type: object
+      required: [name, host, port, version, authMode, serverPermissionConfirmed]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 32 }
+        host: { type: string, minLength: 1, maxLength: 253 }
+        port: { type: integer, minimum: 1, maximum: 65535 }
+        version: { type: string, minLength: 1 }
+        authMode: { type: string, enum: [offline, microsoft] }
+        microsoftEmail: { type: string, maxLength: 254 }
+        serverPermissionConfirmed: { type: boolean }
+        antiAfk: { type: boolean, default: true }
+        autoReconnect: { type: boolean, default: true }
+        patrolEnabled: { type: boolean, default: false }
+        patrolPath:
+          type: array
+          items:
+            type: object
+            required: [x, y, z]
+            properties:
+              x: { type: integer }
+              y: { type: integer }
+              z: { type: integer }
+        chatEnabled: { type: boolean, default: false }
+    CameraChatInput:
+      type: object
+      required: [message]
+      properties:
+        message: { type: string, minLength: 1, maxLength: 200 }
+    BotActionResult:
+      type: object
+      required: [ok, message]
+      properties:
+        ok: { type: boolean }
+        message: { type: string }
 
